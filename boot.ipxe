@@ -7,7 +7,7 @@
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product}
 item --gap --
-item netboot-xyz          netboot.xyz
+item netbootxyz          netboot.xyz
 item --gap --             --- Projects ---
 item af4h                 AF4H
 item --gap --             --- Utilities ---
@@ -15,7 +15,7 @@ item shell                iPXE Shell
 item local                Boot from local disk
 choose --timeout 30000 --default local target && goto ${target}
 
-:netboot-xyz
+:netbootxyz
 chain https://boot.netboot.xyz || goto failed
 
 :af4h
