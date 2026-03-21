@@ -1,16 +1,17 @@
 #!ipxe
 
 # -------------------------------------------------------
-# AF4H Netboot -- Main Menu
+# 844DONNYMAC LLC Netboot -- Main Menu
 # -------------------------------------------------------
 
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product}
-item --gap --
+item --gap --             --- General ---
 item netbootxyz          netboot.xyz
 item --gap --             --- Projects ---
 item af4h                 AF4H
 item --gap --             --- Utilities ---
+item reload                Reload iPXE menu
 item shell                iPXE Shell
 item local                Boot from local disk
 choose --timeout 30000 --default local target && goto ${target}
@@ -20,6 +21,9 @@ chain https://boot.netboot.xyz || goto failed
 
 :af4h
 chain https://www.af4h.net/boot.ipxe || goto failed
+
+:reload
+chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
 
 :shell
 shell
