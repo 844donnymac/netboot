@@ -1,0 +1,29 @@
+#!ipxe
+
+# -------------------------------------------------------
+# AF4H Netboot -- Main Menu
+# -------------------------------------------------------
+
+:menu
+menu AF4H Netboot -- ${manufacturer} ${product}
+item --gap --             --- Projects ---
+item af4h                 AF4H
+item --gap --             --- Utilities ---
+item shell                iPXE Shell
+item local                Boot from local disk
+choose --timeout 30000 --default local target && goto ${target}
+
+:af4h
+chain https://www.af4h.net/boot.ipxe || goto failed
+
+:shell
+shell
+goto menu
+
+:local
+exit 0
+
+:failed
+echo Failed to load submenu, press any key to return...
+prompt
+goto menu
