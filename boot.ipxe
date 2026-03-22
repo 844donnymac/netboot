@@ -4,22 +4,18 @@
 # 844DONNYMAC LLC Netboot -- Version Gate
 # -------------------------------------------------------
 
-# If version is unset, we're probably on Proxmox's old iPXE — upgrade
+# If version is unset, upgrade immediately
 isset ${version} || goto upgrade
 
-# Parse major version number
-set ver_major ${version}
-set ver_major ${ver_major%%.*}
+# Check if version starts with 2. or 3. (good)
+iseq ${version:0:2} 2. && goto skip_upgrade ||
+iseq ${version:0:2} 3. && goto skip_upgrade ||
 
-# If major is 2 or higher, we're good
-iseq ${ver_major} 2 && goto skip_upgrade ||
-# Add future-proofing for 3, 4, etc.
-# If it's not 0 or 1, assume it's new enough
-iseq ${ver_major} 0 && goto upgrade ||
-iseq ${ver_major} 1 && goto upgrade ||
-goto skip_upgrade
+# Otherwise (1.x, 0.x, or unparseable) — upgrade
+goto upgrade
 
 :upgrade
+echo Detected outdated or unknown iPXE (${version}). Chainloading updated binary...
 iseq ${platform} efi && set upgrade_url http://boot.844dm.net/ipxe.efi ||
 isset ${upgrade_url} || set upgrade_url http://boot.844dm.net/undionly.ipxe
 echo Chainloading ${upgrade_url}...
