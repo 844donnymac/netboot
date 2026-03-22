@@ -14,7 +14,7 @@ goto skip_version_check
 
 :upgrade
 echo iPXE version ${ipxe-version} is outdated (< 2.0). Downloading latest...
-chain --autofree https://boot.ipxe.org/ipxe.pxe && goto skip_version_check || echo Failed to upgrade iPXE, continuing anyway...
+chain --autofree http://boot.844dm.net/undionly.ipxe && goto skip_version_check || echo Failed to upgrade iPXE, continuing anyway...
 
 :skip_version_check
 
@@ -37,7 +37,7 @@ chain https://boot.netboot.xyz || goto failed
 chain https://www.af4h.net/boot.ipxe || goto failed
 
 :updateipxe
-chain --autofree http://boot.ipxe.org/ipxe.pxe
+chain --autofree http://boot.844dm.net/undionly.ipxe && goto skip_version_check || echo Failed to upgrade iPXE, continuing anyway...
 
 :reload
 chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
