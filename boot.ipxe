@@ -20,10 +20,11 @@ chain --autofree https://boot.ipxe.org/ipxe.pxe && goto skip_version_check || ec
 
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product}
-item --gap--             -- Boot Options ---
+item --gap --             -- Boot Options ---
 item af4h                 AF4H
 item netbootxyz           netboot.xyz
 item --gap --             --- Utilities ---
+item updateipxe           Update iPXE
 item reload               Reload iPXE menu
 item shell                iPXE Shell
 item local                Boot from local disk
@@ -34,6 +35,9 @@ chain https://boot.netboot.xyz || goto failed
 
 :af4h
 chain https://www.af4h.net/boot.ipxe || goto failed
+
+:updateipxe
+chain --autofree http://boot.ipxe.org/ipxe.pxe
 
 :reload
 chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
