@@ -38,6 +38,7 @@ item netbootxyz           netboot.xyz
 item --gap --             --- Utilities ---
 item updateipxe           Update iPXE
 item reload               Reload iPXE menu
+item reboot               Reboot the system
 item shell                iPXE Shell
 item local                Boot from local disk
 choose --timeout 30000 --default local target && goto ${target}
@@ -53,6 +54,9 @@ chain --autofree http://boot.844dm.net/undionly.ipxe || goto failed
 
 :reload
 chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
+
+:reboot
+reboot
 
 :shell
 shell
