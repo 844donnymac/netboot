@@ -4,14 +4,27 @@
 # 844DONNYMAC LLC Netboot -- Main Menu
 # -------------------------------------------------------
 
+# --- iPXE version check ---
+isset ${ipxe-version} || goto skip_version_check
+set ver_major ${ipxe-version}
+set ver_major ${ver_major%%.*}
+iseq ${ver_major} 0 && goto upgrade ||
+iseq ${ver_major} 1 && goto upgrade ||
+goto skip_version_check
+
+:upgrade
+echo iPXE version ${ipxe-version} is outdated (< 2.0). Downloading latest...
+chain --autofree https://boot.ipxe.org/ipxe.pxe && goto skip_version_check || echo Failed to upgrade iPXE, continuing anyway...
+
+:skip_version_check
+
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product}
-item --gap --             --- General ---
-item netbootxyz          netboot.xyz
-item --gap --             --- Projects ---
+item --gap--             -- Boot Options ---
 item af4h                 AF4H
+item netbootxyz           netboot.xyz
 item --gap --             --- Utilities ---
-item reload                Reload iPXE menu
+item reload               Reload iPXE menu
 item shell                iPXE Shell
 item local                Boot from local disk
 choose --timeout 30000 --default local target && goto ${target}
