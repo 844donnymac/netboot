@@ -23,7 +23,9 @@ chain https://boot.netboot.xyz || goto failed
 chain https://www.af4h.net/boot.ipxe || goto failed
 
 :updateipxe
-chain --autofree http://boot.844dm.net/undionly.ipxe || goto failed
+iseq ${platform} efi && set upgrade_url http://boot.844dm.net/snponly.efi ||
+isset ${upgrade_url} || set upgrade_url http://boot.844dm.net/undionly.ipxe
+chain --autofree ${upgrade_url} || goto failed
 
 :reload
 chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
