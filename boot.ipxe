@@ -20,6 +20,7 @@ chain --autofree http://boot.844dm.net/undionly.ipxe && goto skip_version_check 
 
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product}
+menu iPXE Version ${ipxe-version}
 item --gap --             -- Boot Options ---
 item af4h                 AF4H
 item netbootxyz           netboot.xyz
