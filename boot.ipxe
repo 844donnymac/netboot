@@ -5,8 +5,8 @@
 # -------------------------------------------------------
 
 # --- iPXE version check ---
-isset ${ipxe-version} || goto skip_version_check
-set ver_major ${ipxe-version}
+isset ${version} || goto skip_version_check
+set ver_major ${version}
 set ver_major ${ver_major%%.*}
 iseq ${ver_major} 0 && goto upgrade ||
 iseq ${ver_major} 1 && goto upgrade ||
@@ -19,8 +19,7 @@ chain --autofree http://boot.844dm.net/undionly.ipxe && goto skip_version_check 
 :skip_version_check
 
 :menu
-menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product}
-menu iPXE Version ${ipxe-version}
+menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product} --- iPXE ${version}
 item --gap --             -- Boot Options ---
 item af4h                 AF4H
 item netbootxyz           netboot.xyz
