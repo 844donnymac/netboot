@@ -1,7 +1,32 @@
 #!ipxe
 
 # -------------------------------------------------------
-# Main Menu
+# Version check & auto-upgrade (iPXE 2.0 style, http served)
+# -------------------------------------------------------
+
+# Check if we are already on the desired build (g5921e)
+iseq ${version} *g5921e* && goto menu ||
+
+echo
+echo Detected iPXE version: ${version}
+echo This is older than g5921e -- upgrading now...
+echo
+
+# Choose the right upgrade binary (EFI vs. undionly)
+iseq ${platform} efi && set upgrade_url http://boot.844dm.net/snponly.efi ||
+set upgrade_url http://boot.844dm.net/undionly.kpxe
+
+# Chain the newer binary (it will re-download and run this same boot.ipxe script)
+chain --autofree ${upgrade_url} || goto upgrade_failed
+
+:upgrade_failed
+echo
+echo Upgrade failed! Press any key to continue anyway...
+prompt
+goto menu
+
+# -------------------------------------------------------
+# Main Menu (only reached if we are already on g5921e)
 # -------------------------------------------------------
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product} --- iPXE ${version}
