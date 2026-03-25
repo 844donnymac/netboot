@@ -1,21 +1,20 @@
 #!ipxe
 
 # -------------------------------------------------------
-# Auto-upgrade to g5921e if older version is running
+# Auto-upgrade to g5921e if not already running
 # -------------------------------------------------------
 
-# Check if version string contains "g5921e"
-isset ${version} || goto menu
-iseq ${version:uristring} *g5921e* && goto menu ||
+# Exact match using uristring (space becomes %20)
+iseq ${version:uristring} 2.0.0+%20(g5921e) && goto menu ||
 
 echo
 echo Detected iPXE version: ${version}
 echo This is older than g5921e -- upgrading now...
 echo
 
-# Select correct binary for this platform (http served from Synology)
-iseq ${platform} efi && set upgrade_url http://boot.844dm.net/snponly.efi ||
-set upgrade_url http://boot.844dm.net/undionly.kpxe
+# Upgrade binary served over HTTP from the public location
+iseq ${platform} efi && set upgrade_url https://boot.844dm.net/snponly.efi ||
+set upgrade_url https://boot.844dm.net/undionly.kpxe
 
 chain --autofree ${upgrade_url} || goto upgrade_failed
 
@@ -26,7 +25,7 @@ prompt
 goto menu
 
 # -------------------------------------------------------
-# Main Menu (only reached on g5921e or newer)
+# Main Menu
 # -------------------------------------------------------
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product} --- iPXE ${version}
