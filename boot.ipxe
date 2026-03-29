@@ -44,7 +44,7 @@ choose target && goto ${target}
 chain https://boot.netboot.xyz || goto failed
 
 :af4h
-chain https://www.af4h.net/boot.ipxe || goto failed
+chain https://boot.af4h.net/boot.ipxe || goto failed
 
 :updateipxe
 clear upgrade_url
