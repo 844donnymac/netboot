@@ -40,7 +40,7 @@ item mainmenu             Back to Main Menu
 choose target && goto ${target}
 
 :base
-set preseed-file https://raw.githubusercontent.com/844donnymac/netboot/main/Debian/base-preseed.txt
+set preseed-file https://raw.githubusercontent.com/844donnymac/netboot/main/Debian/base-preseed.cfg
 goto bootdebian
 
 :bootdebian

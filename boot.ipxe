@@ -29,9 +29,9 @@ goto menu
 # -------------------------------------------------------
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product} --- iPXE ${version}
-item --gap --             -- Boot Options ---
+item --gap --             -- Internal systems ---
 item debian               Debian install options
-item --gap --
+item --gap --             -- Outside systems --
 item af4h                 AF4H
 item netbootxyz           netboot.xyz
 item --gap --             --- Utilities ---
