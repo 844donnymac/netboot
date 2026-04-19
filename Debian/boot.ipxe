@@ -1,0 +1,58 @@
+#!ipxe
+
+# -------------------------------------------------------
+# Common variables
+# -------------------------------------------------------
+
+set kernel-url http://deb.debian.org/debian/dists/stable/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
+set initrd-url http://deb.debian.org/debian/dists/stable/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
+set initrd-fw https://boot.844dm.net/firmware-combined.cpio.gz
+
+# Installer options passed to the Debian kernel
+set di-opts auto=true priority=critical DEBIAN_FRONTEND=text hw-detect/load_firmware=true DEBIAN_INSTALLER_FRONTEND=text grub-installer/bootdev=/dev/sda
+
+# Platform-dependent kernel options
+iseq ${platform} efi && goto set-efi || goto set-bios
+
+:set-bios
+# nomodeset       — prevents framebuffer conflicts during install
+# efifb/simplefb  — suppress EFI/simple framebuffer on BIOS machines
+# console=tty1    — installer output on physical display
+# ipv6.disable=1  — not needed, avoids boot delays
+set kern-opts nomodeset efifb.none=1 video=efifb:off video=simplefb:off console=tty1 ipv6.disable=1
+goto menu
+
+:set-efi
+# efifb.none=1    — suppress EFI framebuffer (helps on old GOP/VBIOS systems)
+set kern-opts nomodeset efifb.none=1 console=tty1 ipv6.disable=1
+goto menu
+
+# -------------------------------------------------------
+# 844DM Debian Installer Menu
+# -------------------------------------------------------
+
+:menu
+menu Debian
+item --gap --             --- Installations ---
+item base                 Debian base (no GUI)
+item --gap --             --- Navigation ---
+item mainmenu             Back to Main Menu
+choose target && goto ${target}
+
+:base
+set preseed-file https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/Debian/base-preseed.txt
+goto bootdebian
+
+:bootdebian
+kernel ${kernel-url} ${di-opts} preseed/url=${preseed-file} ${kern-opts} ---
+initrd ${initrd-url}
+initrd ${initrd-fw}
+boot || goto failed
+
+:mainmenu
+chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
+
+:failed
+echo Failed, press any key to return to menu...
+prompt
+goto menu

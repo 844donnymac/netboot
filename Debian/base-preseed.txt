@@ -1,0 +1,102 @@
+# preseed.txt - Minimal Debian 13 netboot preseed
+# Hostname = debian-XXXXXX (random 6 chars)
+# SSH authorized_keys fetched from a URL
+
+# ==================== CUSTOMIZE HERE ====================
+USER="dmcmorris"                    # ← Change this
+FULLNAME=${USER}          # ← Optional
+SSH_KEYS_URL="https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/authorized_keys"   # ← URL to your public key file (one key per line)
+HOSTNAME_PREFIX="debian"           # Will become debian-XXXXXX
+# ========================================================
+
+# Localization
+d-i debian-installer/locale string en_US.UTF-8
+d-i keyboard-configuration/xkb-keymap select us
+
+# Network - use a temporary placeholder (will be overridden later)
+d-i netcfg/choose_interface select auto
+d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_domain string localdomain
+
+# Mirror
+d-i mirror/country string manual
+d-i mirror/http/hostname string deb.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+
+# Account setup - locked password (SSH key only)
+d-i passwd/root-login boolean false
+d-i passwd/make-user boolean true
+d-i passwd/user-fullname string ${FULLNAME}
+d-i passwd/username string ${USER}
+d-i passwd/user-password-crypted password !
+d-i passwd/user-default-groups string sudo
+
+# Timezone (Florida)
+d-i clock-setup/utc boolean true
+d-i time/zone string America/New_York
+d-i clock-setup/ntp boolean true
+
+# ==================== PARTITIONING: One large / on primary HDD ====================
+d-i partman/early_command string \
+  set -e; \
+  for dev in $(list-devices disk); do \
+    if [ -e "$dev" ]; then \
+      dd if=/dev/zero of="$dev" bs=1M count=10 || true; \
+      wipefs -a "$dev" || true; \
+    fi; \
+  done; \
+  debconf-set partman-auto/disk "$(list-devices disk | head -n1)"; \
+  dmsetup remove_all || true; \
+  mdadm --stop --scan || true; \
+  pvremove -ff -y /dev/* || true
+
+d-i partman-auto/method string regular
+d-i partman-auto/choose_recipe select atomic
+
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+d-i partman-md/device_remove_md boolean true
+d-i partman-md/confirm boolean true
+d-i partman-md/confirm_nooverwrite boolean true
+
+# Package selection
+d-i tasksel/tasksel/first multiselect standard
+d-i pkgsel/include string openssh-server vim less sudo
+d-i base-installer/install-recommends boolean false
+d-i pkgsel/upgrade select none
+d-i pkgsel/update-policy select none
+
+popularity-contest popularity-contest/participate boolean false
+
+# Boot loader
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+
+# Late command: 
+#   1. Generate random hostname (debian-XXXXXX)
+#   2. Set hostname in the target system
+#   3. Download SSH keys from URL and set up authorized_keys
+d-i preseed/late_command string \
+  in-target sh -c '\
+    RANDOM_SUFFIX=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 6); \
+    NEW_HOSTNAME="${HOSTNAME_PREFIX}-${RANDOM_SUFFIX}"; \
+    echo "${NEW_HOSTNAME}" > /etc/hostname; \
+    sed -i "s/127.0.1.1.*/127.0.1.1 ${NEW_HOSTNAME}/" /etc/hosts; \
+    hostnamectl set-hostname "${NEW_HOSTNAME}" || true; \
+  '; \
+  in-target mkdir -p /home/${USER}/.ssh ; \
+  in-target sh -c "wget -qO- '${SSH_KEYS_URL}' > /home/${USER}/.ssh/authorized_keys" ; \
+  in-target chown -R ${USER}:${USER} /home/${USER}/.ssh ; \
+  in-target chmod 700 /home/${USER}/.ssh ; \
+  in-target chmod 600 /home/${USER}/.ssh/authorized_keys ; \
+  # Optional hardening (recommended):
+  # in-target sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config ; \
+  # in-target sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config ; \
+  # in-target systemctl restart ssh || true

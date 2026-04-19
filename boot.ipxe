@@ -30,6 +30,8 @@ goto menu
 :menu
 menu 844DONNYMAC LLC Netboot -- ${manufacturer} ${product} --- iPXE ${version}
 item --gap --             -- Boot Options ---
+item debian               Debian install options
+item --gap--
 item af4h                 AF4H
 item netbootxyz           netboot.xyz
 item --gap --             --- Utilities ---
@@ -39,6 +41,9 @@ item reboot               Reboot the system
 item shell                iPXE Shell
 item local                Boot from local disk
 choose target && goto ${target}
+
+:debian
+chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/Debian/boot.ipxe
 
 :netbootxyz
 chain https://boot.netboot.xyz || goto failed
