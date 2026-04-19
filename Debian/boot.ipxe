@@ -40,7 +40,7 @@ item mainmenu             Back to Main Menu
 choose target && goto ${target}
 
 :base
-set preseed-file https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/Debian/base-preseed.txt
+set preseed-file https://raw.githubusercontent.com/844donnymac/netboot/main/Debian/base-preseed.txt
 goto bootdebian
 
 :bootdebian
@@ -50,7 +50,7 @@ initrd ${initrd-fw}
 boot || goto failed
 
 :mainmenu
-chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
+chain https://raw.githubusercontent.com/844donnymac/netboot/main/boot.ipxe || goto failed
 
 :failed
 echo Failed, press any key to return to menu...

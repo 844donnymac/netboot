@@ -1,30 +1,31 @@
-# preseed.txt - Minimal Debian 13 netboot preseed
-# Hostname = debian-XXXXXX (random 6 chars)
-# SSH authorized_keys fetched from a URL
+# preseed.txt - Minimal Debian 13 (Trixie) netboot preseed for 844DONNYMAC
+# Hostname = debian-XXXXXX (random 6 alphanumeric chars)
+# SSH keys pulled from repo's authorized_keys file
+# One large / partition on primary disk (overwrites everything)
 
 # ==================== CUSTOMIZE HERE ====================
-USER="dmcmorris"                    # ← Change this
-FULLNAME=${USER}          # ← Optional
-SSH_KEYS_URL="https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/authorized_keys"   # ← URL to your public key file (one key per line)
-HOSTNAME_PREFIX="debian"           # Will become debian-XXXXXX
+USER="dmcmorris"                    # ← Your username
+FULLNAME="dmcmorris"             # ← Full name shown in user account
+SSH_KEYS_URL="https://raw.githubusercontent.com/844donnymac/netboot/main/authorized_keys"
+HOSTNAME_PREFIX="debian"            # Results in: debian-a3f9k2
 # ========================================================
 
 # Localization
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
-# Network - use a temporary placeholder (will be overridden later)
+# Network (placeholder — real hostname set later)
 d-i netcfg/choose_interface select auto
 d-i netcfg/get_hostname string unassigned-hostname
 d-i netcfg/get_domain string localdomain
 
-# Mirror
+# Mirror (good for Florida)
 d-i mirror/country string manual
 d-i mirror/http/hostname string deb.debian.org
 d-i mirror/http/directory string /debian
 d-i mirror/http/proxy string
 
-# Account setup - locked password (SSH key only)
+# Account setup — locked password (SSH key only)
 d-i passwd/root-login boolean false
 d-i passwd/make-user boolean true
 d-i passwd/user-fullname string ${FULLNAME}
@@ -32,12 +33,13 @@ d-i passwd/username string ${USER}
 d-i passwd/user-password-crypted password !
 d-i passwd/user-default-groups string sudo
 
-# Timezone (Florida)
+# Timezone
 d-i clock-setup/utc boolean true
 d-i time/zone string America/New_York
 d-i clock-setup/ntp boolean true
 
-# ==================== PARTITIONING: One large / on primary HDD ====================
+# ==================== PARTITIONING ====================
+# Aggressive wipe of primary disk + one large root partition
 d-i partman/early_command string \
   set -e; \
   for dev in $(list-devices disk); do \
@@ -79,10 +81,7 @@ popularity-contest popularity-contest/participate boolean false
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 
-# Late command: 
-#   1. Generate random hostname (debian-XXXXXX)
-#   2. Set hostname in the target system
-#   3. Download SSH keys from URL and set up authorized_keys
+# Late command — Generate random hostname + setup SSH keys
 d-i preseed/late_command string \
   in-target sh -c '\
     RANDOM_SUFFIX=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 6); \
@@ -96,7 +95,7 @@ d-i preseed/late_command string \
   in-target chown -R ${USER}:${USER} /home/${USER}/.ssh ; \
   in-target chmod 700 /home/${USER}/.ssh ; \
   in-target chmod 600 /home/${USER}/.ssh/authorized_keys ; \
-  # Optional hardening (recommended):
-  # in-target sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config ; \
-  # in-target sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config ; \
+  # Optional: harden SSH to key-only (uncomment if desired)
+  # in-target sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config ; \
+  # in-target sed -i "s/#PermitRootLogin.*/PermitRootLogin no/" /etc/ssh/sshd_config ; \
   # in-target systemctl restart ssh || true

@@ -43,7 +43,7 @@ item local                Boot from local disk
 choose target && goto ${target}
 
 :debian
-chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/Debian/boot.ipxe || goto failed
+chain https://raw.githubusercontent.com/844donnymac/netboot/main/Debian/boot.ipxe || goto failed
 
 :netbootxyz
 chain https://boot.netboot.xyz || goto failed
@@ -58,7 +58,7 @@ isset ${upgrade_url} || set upgrade_url http://boot.844dm.net/undionly.kpxe
 chain --autofree ${upgrade_url} || goto failed
 
 :reload
-chain https://raw.githubusercontent.com/844donnymac/netboot/refs/heads/main/boot.ipxe || goto failed
+chain https://raw.githubusercontent.com/844donnymac/netboot/main/boot.ipxe || goto failed
 
 :reboot
 reboot
