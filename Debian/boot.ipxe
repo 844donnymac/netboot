@@ -6,7 +6,7 @@
 
 set kernel-url http://deb.debian.org/debian/dists/stable/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
 set initrd-url http://deb.debian.org/debian/dists/stable/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
-set initrd-fw https://boot.844dm.net/firmware-combined.cpio.gz
+set initrd-fw https://raw.githubusercontent.com/844donnymac/netboot/main/Debian/firmware-combined.cpio.gz
 
 # Installer options passed to the Debian kernel
 set di-opts auto=true priority=critical DEBIAN_FRONTEND=text hw-detect/load_firmware=true DEBIAN_INSTALLER_FRONTEND=text grub-installer/bootdev=/dev/sda
